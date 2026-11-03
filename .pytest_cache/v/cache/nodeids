@@ -1,0 +1,18 @@
+[
+  "tests/test_abastecimiento.py::test_armar_opciones_calcula_cantidad_total_y_si_llega_tarde",
+  "tests/test_abastecimiento.py::test_demanda_cero_nunca_llega_tarde",
+  "tests/test_abastecimiento.py::test_ninguno_llega_a_tiempo_recomienda_el_mas_rapido",
+  "tests/test_abastecimiento.py::test_producto_sin_proveedor",
+  "tests/test_abastecimiento.py::test_recomienda_el_mas_barato_entre_los_que_llegan_a_tiempo",
+  "tests/test_contra_cotizacion.py::test_coincide_con_la_cotizacion_del_notebook",
+  "tests/test_reposicion.py::test_cantidad_exacta_no_suma_un_empaque_de_mas",
+  "tests/test_reposicion.py::test_decimales_no_suman_un_empaque_de_mas",
+  "tests/test_reposicion.py::test_demanda_cero_no_es_critica_si_hay_stock",
+  "tests/test_reposicion.py::test_ejemplo_de_la_guia",
+  "tests/test_reposicion.py::test_empaque_invalido",
+  "tests/test_reposicion.py::test_pedido_minimo_mayor_que_lo_calculado",
+  "tests/test_reposicion.py::test_stock_cero",
+  "tests/test_reposicion.py::test_stock_que_ya_alcanza_no_pide_nada",
+  "tests/test_revision.py::test_los_pedidos_en_camino_cuentan_como_stock",
+  "tests/test_revision.py::test_separa_criticos_normales_y_sin_proveedor"
+]

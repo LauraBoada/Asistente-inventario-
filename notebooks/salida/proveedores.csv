@@ -1,0 +1,4 @@
+proveedor,contacto,plazo_dias,factor_precio,empaques_minimos
+Distribuidora Andina,pedidos@distribuidoraandina.example,2,0.78,1
+Importadora Pacífico,ventas@importadorapacifico.example,4,0.7,2
+Mayorista Central,compras@mayoristacentral.example,7,0.62,4

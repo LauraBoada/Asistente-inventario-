@@ -1,0 +1,14 @@
+# Entorno virtual y dependencias
+.venv/
+venv/
+
+# Variables de entorno y claves secretas
+.env
+
+# Archivos de caché de Python y pytest
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Salidas de notebooks y datos temporales
+notebooks/.ipynb_checkpoints/

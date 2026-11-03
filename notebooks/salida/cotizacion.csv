@@ -1,0 +1,28 @@
+sku,titulo_producto,proveedor,plazo_dias,cantidad_formula,cantidad_a_pedir,precio_unitario_cop,total_cop,llega_tarde,recomendado,motivo
+12097,Funda Contra Agua Sumergible Protector Universal Celular ,Distribuidora Andina,2,104.6,108,4320,466560,False,True,Menor costo total entre los que llegan a tiempo
+78136,Funda Samsung Galaxy A21s Transparente Con Cristal Templado.,Distribuidora Andina,2,55.3,60,31130,1867800,False,True,Menor costo total entre los que llegan a tiempo
+78136,Funda Samsung Galaxy A21s Transparente Con Cristal Templado.,Importadora Pacífico,4,63.9,66,29780,1965480,True,False,
+78136,Funda Samsung Galaxy A21s Transparente Con Cristal Templado.,Mayorista Central,7,76.7,78,25710,2005380,True,False,
+83810,Funda Brazo Celular Protector Deportivo Ejercicio Gym Correr,Distribuidora Andina,2,70.0,72,6210,447120,False,True,Menor costo total entre los que llegan a tiempo
+83810,Funda Brazo Celular Protector Deportivo Ejercicio Gym Correr,Importadora Pacífico,4,84.0,96,5590,536640,False,False,
+83810,Funda Brazo Celular Protector Deportivo Ejercicio Gym Correr,Mayorista Central,7,105.0,120,5390,646800,True,False,
+92972,Funda Acrigel Samsung Galaxy iPhone Huawei Xiaomi Oleo,Importadora Pacífico,4,153.5,168,7330,1231440,True,True,Ninguno llega a tiempo: el más rápido
+92972,Funda Acrigel Samsung Galaxy iPhone Huawei Xiaomi Oleo,Mayorista Central,7,184.2,192,6370,1223040,True,False,
+240902,Funda Xiaomi Poco X3 Nfc Piel Sintetica + Cristal Glass 9d,Distribuidora Andina,2,97.7,102,39820,4061640,False,True,Menor costo total entre los que llegan a tiempo
+240902,Funda Xiaomi Poco X3 Nfc Piel Sintetica + Cristal Glass 9d,Importadora Pacífico,4,114.1,120,34240,4108800,False,False,
+240902,Funda Xiaomi Poco X3 Nfc Piel Sintetica + Cristal Glass 9d,Mayorista Central,7,138.6,144,32890,4736160,True,False,
+254381,Funda Protector AirPods Case Silicon Con Gancho,Distribuidora Andina,2,79.8,84,7270,610680,False,True,Menor costo total entre los que llegan a tiempo
+254381,Funda Protector AirPods Case Silicon Con Gancho,Importadora Pacífico,4,94.4,96,6440,618240,False,False,
+428084,Funda Contra Agua Sumergible Protector Universal Celular ,Distribuidora Andina,2,152.8,168,4140,695520,False,True,Menor costo total entre los que llegan a tiempo
+428084,Funda Contra Agua Sumergible Protector Universal Celular ,Importadora Pacífico,4,176.4,192,3960,760320,True,False,
+463257,Funda Bolsa Contra Agua Universal Celulares 6.5 Pulgadas,Distribuidora Andina,2,118.5,120,21470,2576400,False,True,Menor costo total entre los que llegan a tiempo
+463257,Funda Bolsa Contra Agua Universal Celulares 6.5 Pulgadas,Mayorista Central,7,161.1,162,18350,2972700,True,False,
+506358,Funda Case Uso Rudo 360 Para iPhone 11 Pro Xs Max 8 Plus 7 ,Distribuidora Andina,2,108.4,120,26710,3205200,False,True,Menor costo total entre los que llegan a tiempo
+506358,Funda Case Uso Rudo 360 Para iPhone 11 Pro Xs Max 8 Plus 7 ,Importadora Pacífico,4,132.6,144,24480,3525120,False,False,
+506358,Funda Case Uso Rudo 360 Para iPhone 11 Pro Xs Max 8 Plus 7 ,Mayorista Central,7,168.9,192,20820,3997440,False,False,
+575480,Funda Brazo Protector Deportiva Celular Ejercicio Gym - T47,Distribuidora Andina,2,41.3,48,5900,283200,False,True,Menor costo total entre los que llegan a tiempo
+575480,Funda Brazo Protector Deportiva Celular Ejercicio Gym - T47,Importadora Pacífico,4,48.9,72,5030,362160,False,False,
+575480,Funda Brazo Protector Deportiva Celular Ejercicio Gym - T47,Mayorista Central,7,60.4,96,4380,420480,True,False,
+623897,Funda Impermeable De Celular Universal Bolsa Contra El Agua,Distribuidora Andina,2,261.7,264,6140,1620960,False,True,Menor costo total entre los que llegan a tiempo
+623897,Funda Impermeable De Celular Universal Bolsa Contra El Agua,Importadora Pacífico,4,299.1,300,5420,1626000,True,False,
+623897,Funda Impermeable De Celular Universal Bolsa Contra El Agua,Mayorista Central,7,355.3,360,4620,1663200,True,False,

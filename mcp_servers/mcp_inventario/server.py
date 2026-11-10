@@ -37,5 +37,15 @@ def obtener_catalogo_proveedores(sku: int) -> list[dict]:
     return leer_catalogo(_conexion()).get(sku, [])
 
 
+@servidor.tool()
+def listar_catalogo_proveedores() -> dict:
+    """Catálogo de proveedores completo, agrupado por sku: {sku: [filas]}.
+
+    Para que el coordinador (grafo) pueda revisar todo el inventario de una sola vez,
+    sin pedir el catálogo producto por producto.
+    """
+    return leer_catalogo(_conexion())
+
+
 if __name__ == "__main__":
     servidor.run()

@@ -58,3 +58,8 @@ def test_obtener_catalogo_proveedores_con_proveedor(monkeypatch):
 def test_obtener_catalogo_proveedores_sin_proveedor(monkeypatch):
     _preparar(monkeypatch)
     assert mcp_inventario.obtener_catalogo_proveedores(2) == []
+
+
+def test_listar_catalogo_proveedores(monkeypatch):
+    _preparar(monkeypatch)
+    assert mcp_inventario.listar_catalogo_proveedores() == {1: CATALOGO}

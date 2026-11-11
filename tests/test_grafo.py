@@ -45,7 +45,7 @@ def test_procesar_decision_rechazada_no_llama_a_pedidos(monkeypatch):
 
     resultado = procesar_decision(CRITICO, {"aprueba": False, "motivo": "Esta semana no"})
 
-    assert resultado == {"sku": 1, "aprobado": False, "pedido_id": None, "motivo": "Esta semana no"}
+    assert resultado == {"sku": 1, "aprobado": False, "estado_envio": None, "pedido_id": None, "motivo": "Esta semana no"}
     assert llamado == []
 
 
@@ -57,7 +57,7 @@ def test_procesar_decision_aprobada_usa_la_recomendada_por_defecto(monkeypatch):
 
     resultado = procesar_decision(CRITICO, {"aprueba": True, "aprobado_por": "dueño"})
 
-    assert resultado == {"sku": 1, "aprobado": True, "pedido_id": "pedido-1", "motivo": None}
+    assert resultado == {"sku": 1, "aprobado": True, "estado_envio": "simulado_enviado", "pedido_id": "pedido-1", "motivo": None}
 
 
 def test_procesar_decision_aprobada_con_proveedor_elegido(monkeypatch):
@@ -163,7 +163,7 @@ def test_grafo_completo_pausa_y_envia_el_pedido_aprobado(monkeypatch):
     assert resultado["terminado"] is True
     assert resultado["sin_proveedor"] == [2]
     assert resultado["decisiones"] == [
-        {"sku": 1, "aprobado": True, "pedido_id": "pedido-aprob-1", "motivo": None},
+        {"sku": 1, "aprobado": True, "estado_envio": "simulado_enviado", "pedido_id": "pedido-aprob-1", "motivo": None},
     ]
 
 
@@ -176,7 +176,7 @@ def test_grafo_completo_rechazo_no_crea_pedido(monkeypatch):
     resultado = app.invoke(Command(resume={"aprueba": False, "motivo": "No por ahora"}), config=config)
 
     assert resultado["terminado"] is True
-    assert resultado["decisiones"] == [{"sku": 1, "aprobado": False, "pedido_id": None, "motivo": "No por ahora"}]
+    assert resultado["decisiones"] == [{"sku": 1, "aprobado": False, "estado_envio": None, "pedido_id": None, "motivo": "No por ahora"}]
 
 
 def test_grafo_sin_criticos_termina_directo(monkeypatch):

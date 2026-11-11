@@ -76,6 +76,7 @@ def procesar_decision(critico, decision):
         return {
             "sku": critico["sku"],
             "aprobado": False,
+            "estado_envio": None,
             "pedido_id": None,
             "motivo": decision.get("motivo", "El dueño no aprobó el pedido"),
         }
@@ -86,6 +87,7 @@ def procesar_decision(critico, decision):
         return {
             "sku": critico["sku"],
             "aprobado": False,
+            "estado_envio": None,
             "pedido_id": None,
             "motivo": f"'{nombre_proveedor}' no está entre las opciones de este producto",
         }
@@ -95,6 +97,7 @@ def procesar_decision(critico, decision):
         return {
             "sku": critico["sku"],
             "aprobado": False,
+            "estado_envio": None,
             "pedido_id": None,
             "motivo": "La cantidad debe ser un entero positivo",
         }
@@ -112,6 +115,7 @@ def procesar_decision(critico, decision):
             return {
                 "sku": critico["sku"],
                 "aprobado": False,
+                "estado_envio": None,
                 "pedido_id": None,
                 "motivo": "La cantidad no cumple el empaque o pedido mínimo",
             }
@@ -122,6 +126,7 @@ def procesar_decision(critico, decision):
 
     aprobacion = registrar_aprobacion_pedido(
         sku=critico["sku"],
+        titulo_producto=critico["titulo_producto"],
         proveedor=opcion["proveedor"],
         cantidad=cantidad,
         total_cop=total_cop,
@@ -130,7 +135,8 @@ def procesar_decision(critico, decision):
     envio = enviar_pedido(aprobacion["aprobacion_id"])
     return {
         "sku": critico["sku"],
-        "aprobado": envio["estado"] == "simulado_enviado",
+        "aprobado": envio["estado"] in {"simulado_enviado", "enviado"},
+        "estado_envio": envio["estado"],
         "pedido_id": envio.get("pedido_id"),
         "motivo": envio.get("motivo"),
     }

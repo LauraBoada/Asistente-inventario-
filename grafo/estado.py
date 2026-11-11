@@ -18,6 +18,7 @@ class Decision(TypedDict):
 
     sku: int
     aprobado: bool
+    estado_envio: str | None
     pedido_id: str | None
     motivo: str | None
 

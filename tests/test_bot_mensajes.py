@@ -66,3 +66,18 @@ def test_formatear_resumen_sin_criticos():
     estado = {"criticos": [], "sin_proveedor": [], "decisiones": []}
     texto = formatear_resumen(estado)
     assert "Ningún producto está en punto de reorden" in texto
+
+
+def test_formatear_resumen_distingue_envio_por_gmail():
+    estado = {
+        "criticos": [{"sku": 1}],
+        "sin_proveedor": [],
+        "decisiones": [
+            {"sku": 1, "aprobado": True, "estado_envio": "enviado", "pedido_id": "pedido-gmail"},
+        ],
+    }
+
+    texto = formatear_resumen(estado)
+
+    assert "Pedidos enviados por Gmail: 1" in texto
+    assert "pedido-gmail" in texto

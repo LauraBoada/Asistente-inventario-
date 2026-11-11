@@ -4,6 +4,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from calculo.abastecimiento import validar_cantidad_personalizada
+
 
 class Intencion(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -41,14 +43,9 @@ def validar_intencion(intencion: Intencion, cotizacion: dict, aprobado_por: str)
     if intencion.fraccion is not None:
         cantidad = int(opcion["cantidad_a_pedir"] * intencion.fraccion)
     if cantidad is not None:
-        empaque = opcion.get("empaque")
-        minimo = opcion.get("pedido_minimo_unidades")
-        if cantidad > opcion["cantidad_a_pedir"]:
-            return {"decision": None, "aclaracion": "La cantidad solicitada supera la cotización. Elige una opción con los botones."}
-        if empaque is None or minimo is None:
-            return {"decision": None, "aclaracion": "No puedo validar el empaque y mínimo de esa cantidad. Elige una opción con los botones."}
-        if cantidad < minimo or cantidad % empaque != 0:
-            return {"decision": None, "aclaracion": "Esa cantidad no cumple el empaque o pedido mínimo. Elige una opción con los botones."}
+        motivo_invalido = validar_cantidad_personalizada(opcion, cantidad)
+        if motivo_invalido is not None:
+            return {"decision": None, "aclaracion": f"{motivo_invalido}. Elige una opción con los botones."}
 
     decision = {"aprueba": True, "proveedor": opcion["proveedor"], "aprobado_por": aprobado_por}
     if cantidad is not None:

@@ -53,12 +53,20 @@ def formatear_resumen(estado: dict) -> str:
     lineas = ["📋 Revisión de inventario terminada."]
 
     enviados = [d for d in estado["decisiones"] if d["aprobado"]]
+    simulados = [d for d in enviados if d.get("estado_envio", "simulado_enviado") == "simulado_enviado"]
+    enviados_gmail = [d for d in enviados if d.get("estado_envio") == "enviado"]
     rechazados = [d for d in estado["decisiones"] if not d["aprobado"]]
 
-    if enviados:
+    if simulados:
         lineas.append("")
-        lineas.append(f"Pedidos enviados (simulado): {len(enviados)}")
-        for d in enviados:
+        lineas.append(f"Pedidos enviados (simulado): {len(simulados)}")
+        for d in simulados:
+            lineas.append(f"• sku {d['sku']} — pedido {d['pedido_id']}")
+
+    if enviados_gmail:
+        lineas.append("")
+        lineas.append(f"Pedidos enviados por Gmail: {len(enviados_gmail)}")
+        for d in enviados_gmail:
             lineas.append(f"• sku {d['sku']} — pedido {d['pedido_id']}")
 
     if rechazados:

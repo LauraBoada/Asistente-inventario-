@@ -60,15 +60,31 @@ def obtener_aprobacion(db, aprobacion_id):
 
 
 def marcar_aprobacion_usada(db, aprobacion_id):
-    """Marca una aprobación como ya usada, para que no sirva para un segundo envío."""
-    db["aprobaciones"].update_one({"_id": _a_id(aprobacion_id)}, {"$set": {"usada": True}})
+    """Consume una aprobación una sola vez y devuelve si este proceso la reservó."""
+    oid = _a_id(aprobacion_id)
+    if oid is None:
+        return False
+    resultado = db["aprobaciones"].update_one(
+        {"_id": oid, "usada": False},
+        {"$set": {"usada": True}},
+    )
+    return resultado.modified_count == 1
 
 
 def registrar_pedido(db, pedido):
-    """Guarda un pedido (modo simulado hasta la fase de envío por correo) y devuelve su id."""
+    """Guarda un pedido y devuelve su id."""
     documento = {**pedido, "fecha": datetime.now(timezone.utc)}
     resultado = db["pedidos"].insert_one(documento)
     return str(resultado.inserted_id)
+
+
+def actualizar_pedido(db, pedido_id, cambios):
+    """Actualiza el resultado de envío de un pedido registrado."""
+    oid = _a_id(pedido_id)
+    if oid is None:
+        return False
+    resultado = db["pedidos"].update_one({"_id": oid}, {"$set": cambios})
+    return resultado.modified_count == 1
 
 
 def obtener_pedido(db, pedido_id):

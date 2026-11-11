@@ -5,6 +5,7 @@
 # de números.
 from langgraph.types import interrupt
 
+from calculo.abastecimiento import validar_cantidad_personalizada
 from mcp_servers.mcp_inventario.server import listar_catalogo_proveedores, listar_productos
 from mcp_servers.mcp_pedidos.server import enviar_pedido, registrar_aprobacion_pedido
 from mcp_servers.mcp_reposicion.server import revisar_inventario_completo
@@ -76,6 +77,7 @@ def procesar_decision(critico, decision):
         return {
             "sku": critico["sku"],
             "aprobado": False,
+            "estado_envio": None,
             "pedido_id": None,
             "motivo": decision.get("motivo", "El dueño no aprobó el pedido"),
         }
@@ -86,35 +88,21 @@ def procesar_decision(critico, decision):
         return {
             "sku": critico["sku"],
             "aprobado": False,
+            "estado_envio": None,
             "pedido_id": None,
             "motivo": f"'{nombre_proveedor}' no está entre las opciones de este producto",
         }
 
     cantidad = decision.get("cantidad", opcion["cantidad_a_pedir"])
-    if not isinstance(cantidad, int) or isinstance(cantidad, bool) or cantidad <= 0:
+    motivo_invalido = validar_cantidad_personalizada(opcion, cantidad)
+    if motivo_invalido is not None:
         return {
             "sku": critico["sku"],
             "aprobado": False,
+            "estado_envio": None,
             "pedido_id": None,
-            "motivo": "La cantidad debe ser un entero positivo",
+            "motivo": motivo_invalido,
         }
-    if cantidad > opcion["cantidad_a_pedir"]:
-        return {
-            "sku": critico["sku"],
-            "aprobado": False,
-            "pedido_id": None,
-            "motivo": "La cantidad solicitada supera la cotización",
-        }
-    if cantidad != opcion["cantidad_a_pedir"]:
-        empaque = opcion.get("empaque")
-        minimo = opcion.get("pedido_minimo_unidades")
-        if empaque is None or minimo is None or cantidad < minimo or cantidad % empaque != 0:
-            return {
-                "sku": critico["sku"],
-                "aprobado": False,
-                "pedido_id": None,
-                "motivo": "La cantidad no cumple el empaque o pedido mínimo",
-            }
 
     total_cop = opcion["total_cop"]
     if cantidad != opcion["cantidad_a_pedir"]:
@@ -122,6 +110,7 @@ def procesar_decision(critico, decision):
 
     aprobacion = registrar_aprobacion_pedido(
         sku=critico["sku"],
+        titulo_producto=critico["titulo_producto"],
         proveedor=opcion["proveedor"],
         cantidad=cantidad,
         total_cop=total_cop,
@@ -130,7 +119,8 @@ def procesar_decision(critico, decision):
     envio = enviar_pedido(aprobacion["aprobacion_id"])
     return {
         "sku": critico["sku"],
-        "aprobado": envio["estado"] == "simulado_enviado",
+        "aprobado": envio["estado"] in {"simulado_enviado", "enviado"},
+        "estado_envio": envio["estado"],
         "pedido_id": envio.get("pedido_id"),
         "motivo": envio.get("motivo"),
     }

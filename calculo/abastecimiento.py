@@ -27,6 +27,8 @@ def armar_opciones(producto, catalogo, dias_cobertura):
             "sku": producto["sku"],
             "proveedor": fila["proveedor"],
             "plazo_dias": fila["plazo_dias"],
+            "empaque": producto["empaque"],
+            "pedido_minimo_unidades": fila["pedido_minimo_unidades"],
             "cantidad_a_pedir": cantidad,
             "precio_unitario_cop": fila["precio_unitario_cop"],
             "total_cop": cantidad * fila["precio_unitario_cop"],

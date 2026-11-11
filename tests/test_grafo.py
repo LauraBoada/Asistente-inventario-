@@ -77,6 +77,41 @@ def test_procesar_decision_aprobada_con_proveedor_elegido(monkeypatch):
     assert capturado["cantidad"] == 48
 
 
+def test_procesar_decision_con_cantidad_ajustada_recalcula_total(monkeypatch):
+    critico = {
+        **CRITICO,
+        "opciones": [
+            {
+                **CRITICO["opciones"][0],
+                "precio_unitario_cop": 100,
+                "empaque": 12,
+                "pedido_minimo_unidades": 12,
+            }
+        ],
+        "recomendada": {"proveedor": "Distribuidora Andina"},
+    }
+    capturado = {}
+    monkeypatch.setattr(nodos, "registrar_aprobacion_pedido", lambda **kw: capturado.update(kw) or {"aprobacion_id": "aprob-3"})
+    monkeypatch.setattr(nodos, "enviar_pedido",
+                         lambda aprobacion_id: {"estado": "simulado_enviado", "pedido_id": "pedido-3"})
+
+    procesar_decision(critico, {"aprueba": True, "cantidad": 24, "aprobado_por": "Laura"})
+
+    assert capturado["cantidad"] == 24
+    assert capturado["total_cop"] == 2400
+
+
+def test_procesar_decision_rechaza_cantidad_invalida_sin_registrar(monkeypatch):
+    llamado = []
+    monkeypatch.setattr(nodos, "registrar_aprobacion_pedido", lambda **kw: llamado.append(kw))
+
+    resultado = procesar_decision(CRITICO, {"aprueba": True, "cantidad": 18})
+
+    assert resultado["aprobado"] is False
+    assert "empaque o pedido mínimo" in resultado["motivo"]
+    assert llamado == []
+
+
 def test_procesar_decision_proveedor_inexistente_no_llama_a_pedidos(monkeypatch):
     llamado = []
     monkeypatch.setattr(nodos, "registrar_aprobacion_pedido", lambda **kw: llamado.append(kw))

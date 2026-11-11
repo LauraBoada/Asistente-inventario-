@@ -90,11 +90,41 @@ def procesar_decision(critico, decision):
             "motivo": f"'{nombre_proveedor}' no está entre las opciones de este producto",
         }
 
+    cantidad = decision.get("cantidad", opcion["cantidad_a_pedir"])
+    if not isinstance(cantidad, int) or isinstance(cantidad, bool) or cantidad <= 0:
+        return {
+            "sku": critico["sku"],
+            "aprobado": False,
+            "pedido_id": None,
+            "motivo": "La cantidad debe ser un entero positivo",
+        }
+    if cantidad > opcion["cantidad_a_pedir"]:
+        return {
+            "sku": critico["sku"],
+            "aprobado": False,
+            "pedido_id": None,
+            "motivo": "La cantidad solicitada supera la cotización",
+        }
+    if cantidad != opcion["cantidad_a_pedir"]:
+        empaque = opcion.get("empaque")
+        minimo = opcion.get("pedido_minimo_unidades")
+        if empaque is None or minimo is None or cantidad < minimo or cantidad % empaque != 0:
+            return {
+                "sku": critico["sku"],
+                "aprobado": False,
+                "pedido_id": None,
+                "motivo": "La cantidad no cumple el empaque o pedido mínimo",
+            }
+
+    total_cop = opcion["total_cop"]
+    if cantidad != opcion["cantidad_a_pedir"]:
+        total_cop = cantidad * opcion["precio_unitario_cop"]
+
     aprobacion = registrar_aprobacion_pedido(
         sku=critico["sku"],
         proveedor=opcion["proveedor"],
-        cantidad=opcion["cantidad_a_pedir"],
-        total_cop=opcion["total_cop"],
+        cantidad=cantidad,
+        total_cop=total_cop,
         aprobado_por=decision.get("aprobado_por", "dueño"),
     )
     envio = enviar_pedido(aprobacion["aprobacion_id"])

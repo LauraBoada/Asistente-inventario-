@@ -25,6 +25,11 @@ def test_pedido_minimo_mayor_que_lo_calculado():
     assert cantidad_sugerida(1, 2, 14, 10, 6, 48) == 48
 
 
+def test_pedido_minimo_no_multiplo_del_empaque_se_redondea_hacia_arriba():
+    # El proveedor exige 10, pero solo se vende en empaques de 6
+    assert cantidad_sugerida(1, 1, 1, 0, 6, 10) == 12
+
+
 def test_stock_que_ya_alcanza_no_pide_nada():
     # Necesidad = 34 - 40 = -6, no hay que pedir
     assert cantidad_sugerida(2, 3, 14, 40, 12, 12) == 0

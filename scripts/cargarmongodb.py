@@ -13,7 +13,7 @@ SALIDA = RAIZ / "notebooks" / "salida"
 cliente = MongoClient(os.environ["MONGODB_URI"], serverSelectionTimeoutMS=8000)
 cliente.admin.command("ping")
 print("Conexión con Atlas: OK")
-db = cliente["inventario"]
+db = cliente[os.environ.get("MONGODB_DB", "inventario")]
 
 # 2. Cada CSV pasa a ser una colección
 archivos = {

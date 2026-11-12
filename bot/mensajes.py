@@ -1,86 +1,105 @@
-# Construye los textos y botones de la cotización, y traduce la respuesta del dueño
-# (callback_data del botón que tocó) en la decisión que espera grafo.nodos.revisar_siguiente
-# al reanudar el grafo. Separado de bot.py para poder probarlo sin conectarse a Telegram.
+"""Textos que ve el dueño en Telegram. Son funciones simples, sin Telegram, para poder probarlas."""
+
+LIMITE = 3900   # Telegram admite 4096 caracteres por mensaje
 
 
-def formatear_cotizacion(cotizacion: dict) -> str:
-    """Texto de la cotización de un producto crítico, con sus opciones de proveedor."""
-    lineas = [
-        f"📦 *{cotizacion['titulo_producto']}* (sku {cotizacion['sku']}) está por agotarse.",
-        "",
-        "Opciones de proveedor:",
-    ]
-    recomendado = (cotizacion.get("recomendada") or {}).get("proveedor")
-    for opcion in cotizacion["opciones"]:
-        marca = "✅ " if opcion["proveedor"] == recomendado else "• "
-        tarde = " (llega tarde)" if opcion.get("llega_tarde") else ""
-        lineas.append(
-            f"{marca}{opcion['proveedor']}: {opcion['cantidad_a_pedir']} u. "
-            f"— ${opcion['total_cop']:,.0f} COP{tarde}"
+def _cop(valor):
+    return f"${valor:,.0f}"
+
+
+def _lineas_producto(c, detallado):
+    titulo = c["titulo"].strip()[:40]
+    lineas = [f"• {titulo} ({c['sku']})"]
+    for o in c["opciones"]:
+        recomendada = o.get("recomendada", o["proveedor"] == c["recomendada"])
+        seleccionada = o.get(
+            "seleccionada",
+            o["proveedor"] == c.get("seleccionada", c["recomendada"]),
         )
-    lineas.append("")
-    lineas.append("✅ = opción recomendada. Elige un proveedor o rechaza el pedido.")
+        if not detallado and not recomendada and not seleccionada:
+            continue
+        marca = "⭐✅" if recomendada and seleccionada else (
+            "✅" if seleccionada else ("⭐" if recomendada else "▫️")
+        )
+        tarde = " ⚠️ llega tarde" if o["llega_tarde"] else ""
+        lineas.append(f"   {marca} {o['proveedor']}: {o['cantidad']} unid. · "
+                      f"{_cop(o['total_cop'])} · {o['plazo_dias']} días{tarde}")
+    return lineas
+
+
+def _construir(info, detallado, max_productos=None):
+    todos = info.get("criticos", [])
+    criticos = todos if max_productos is None else todos[:max_productos]
+    lineas = []
+    mensaje = info.get("mensaje", "")
+    if mensaje and not mensaje.startswith("Pedidos listos"):
+        lineas += [mensaje, ""]
+    lineas += ["📦 Revisión de inventario", "", f"Productos por agotarse: {len(todos)}"]
+    for c in criticos:
+        lineas.append("")
+        lineas += _lineas_producto(c, detallado)
+    if len(criticos) < len(todos):
+        lineas += ["", f"… y {len(todos) - len(criticos)} productos más (incluidos en los pedidos)"]
+    if any(c.get("seleccionada") and c["seleccionada"] != c["recomendada"] for c in criticos):
+        lineas += ["", "⭐ Recomendación · ✅ opción que elegiste"]
+    lineas += ["", "Pedidos que se crearían si apruebas:"]
+    for p in info.get("pedidos", []):
+        cantidad = p["productos"]
+        unidad = "producto" if cantidad == 1 else "productos"
+        lineas.append(f"   - {p['proveedor']}: {cantidad} {unidad} · {_cop(p['total_cop'])}")
+    if info.get("sin_proveedor"):
+        lineas += ["", "⚠️ Cotización pendiente para estos SKU: "
+                   + ", ".join(str(s) for s in info["sin_proveedor"])]
+        lineas += [
+            "Pulsa «Agregar cotización» y envía los datos del proveedor por este chat."
+        ]
     return "\n".join(lineas)
 
 
-def botones_cotizacion(cotizacion: dict) -> list[list[tuple[str, str]]]:
-    """Filas de botones como (texto, callback_data), sin depender de la librería de
-    Telegram: una fila por proveedor y una fila final para rechazar."""
-    sku = cotizacion["sku"]
-    recomendado = (cotizacion.get("recomendada") or {}).get("proveedor")
-    filas = []
-    for opcion in cotizacion["opciones"]:
-        marca = "✅ " if opcion["proveedor"] == recomendado else ""
-        texto = f"{marca}{opcion['proveedor']} ({opcion['cantidad_a_pedir']} u.)"
-        filas.append([(texto, f"aprobar:{sku}:{opcion['proveedor']}")])
-    filas.append([("❌ Rechazar", f"rechazar:{sku}")])
-    return filas
+def formatear_cotizacion(info):
+    """Cotización completa; si es muy larga, muestra solo la opción recomendada de cada producto."""
+    texto = _construir(info, detallado=True)
+    if len(texto) > LIMITE:
+        texto = _construir(info, detallado=False)
+    # Si aún es muy larga, se muestran menos productos, pero el resumen de pedidos siempre queda
+    n = len(info.get("criticos", []))
+    while len(texto) > LIMITE and n > 0:
+        n -= 1
+        texto = _construir(info, detallado=False, max_productos=n)
+    return texto
 
 
-def decision_desde_callback(data: str, aprobado_por: str) -> dict:
-    """Traduce el callback_data de un botón ('aprobar:sku:proveedor' o 'rechazar:sku') en
-    la decisión que espera el grafo al reanudar con Command(resume=...)."""
-    accion, _, resto = data.partition(":")
-    if accion == "aprobar":
-        _sku, _, proveedor = resto.partition(":")
-        return {"aprueba": True, "proveedor": proveedor, "aprobado_por": aprobado_por}
-    return {"aprueba": False, "motivo": f"Rechazado por {aprobado_por} vía Telegram"}
+ETIQUETAS = {
+    "enviado": "✅ Pedidos enviados",
+    "simulado": "🧪 Pedido simulado: no se envió ningún correo.",
+    "enviado_con_errores": "⚠️ Algunos pedidos no se pudieron enviar",
+    "rechazado": "❌ Pedidos rechazados. No se envió nada.",
+    "pendiente": "⏳ Los pedidos quedaron pendientes. No se envió nada.",
+    "sin_novedades": "✅ Todo en orden: no hay productos por agotarse.",
+    "solo_sin_proveedor": "⚠️ Hay productos por agotarse, pero ningún proveedor los surte.",
+}
 
 
-def formatear_resumen(estado: dict) -> str:
-    """Texto final cuando el grafo ya revisó todos los productos críticos (o se cortó por
-    el límite de ciclos)."""
-    lineas = ["📋 Revisión de inventario terminada."]
-
-    enviados = [d for d in estado["decisiones"] if d["aprobado"]]
-    simulados = [d for d in enviados if d.get("estado_envio", "simulado_enviado") == "simulado_enviado"]
-    enviados_gmail = [d for d in enviados if d.get("estado_envio") == "enviado"]
-    rechazados = [d for d in estado["decisiones"] if not d["aprobado"]]
-
-    if simulados:
-        lineas.append("")
-        lineas.append(f"Pedidos enviados (simulado): {len(simulados)}")
-        for d in simulados:
-            lineas.append(f"• sku {d['sku']} — pedido {d['pedido_id']}")
-
-    if enviados_gmail:
-        lineas.append("")
-        lineas.append(f"Pedidos enviados por Gmail: {len(enviados_gmail)}")
-        for d in enviados_gmail:
-            lineas.append(f"• sku {d['sku']} — pedido {d['pedido_id']}")
-
-    if rechazados:
-        lineas.append("")
-        lineas.append(f"Sin enviar: {len(rechazados)}")
-        for d in rechazados:
-            lineas.append(f"• sku {d['sku']} — {d['motivo']}")
-
-    if estado["sin_proveedor"]:
-        lineas.append("")
-        lineas.append(f"Críticos sin proveedor registrado: {estado['sin_proveedor']}")
-
-    if not estado["criticos"]:
-        lineas.append("")
-        lineas.append("Ningún producto está en punto de reorden por ahora.")
-
+def formatear_resultado(resultado):
+    texto = ETIQUETAS.get(resultado["resultado"], resultado["resultado"])
+    lineas = [texto]
+    if resultado.get("sin_proveedor"):
+        lineas.append(
+            "⚠️ Sin proveedor: " + ", ".join(str(sku) for sku in resultado["sin_proveedor"])
+        )
+        lineas.append(
+            "No se genera pedido para esos SKU hasta añadir una cotización a "
+            "catalogo_proveedores."
+        )
+    for p in resultado.get("pedidos", []):
+        if "estado" in p:
+            lineas.append(f"   - {p['proveedor']}: {p['estado']}")
+        if p.get("detalle"):
+            lineas.append(f"      Motivo: {p['detalle']}")
+        correo = p.get("correo")
+        if correo and correo.get("canal") == "simulado":
+            lineas.append(f"      Para: {correo['destinatario']}")
+            lineas.append(f"      Asunto: {correo['asunto']}")
+            lineas.append("      Vista previa (no enviada):")
+            lineas.extend(f"      {fila}" for fila in correo["cuerpo"].splitlines()[:8])
     return "\n".join(lineas)

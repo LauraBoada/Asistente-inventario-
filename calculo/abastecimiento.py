@@ -37,29 +37,6 @@ def armar_opciones(producto, catalogo, dias_cobertura):
     return opciones
 
 
-def validar_cantidad_personalizada(opcion, cantidad):
-    """Valida una cantidad distinta a la cotizada para una opción de proveedor.
-
-    Devuelve None si la cantidad es válida, o el motivo del rechazo. La cotizada
-    (opcion["cantidad_a_pedir"]) siempre es válida; cualquier otra debe ser un entero
-    positivo, no superar la cotización, y cumplir el empaque y el pedido mínimo de la
-    opción. La usan tanto el intérprete de instrucciones (bot/interprete.py) como el
-    grafo (grafo/nodos.py) para no repetir la misma regla de negocio en dos lugares.
-    """
-    if not isinstance(cantidad, int) or isinstance(cantidad, bool) or cantidad <= 0:
-        return "La cantidad debe ser un entero positivo"
-    if cantidad > opcion["cantidad_a_pedir"]:
-        return "La cantidad solicitada supera la cotización"
-    if cantidad == opcion["cantidad_a_pedir"]:
-        return None
-
-    empaque = opcion.get("empaque")
-    minimo = opcion.get("pedido_minimo_unidades")
-    if empaque is None or minimo is None or cantidad < minimo or cantidad % empaque != 0:
-        return "La cantidad no cumple el empaque o pedido mínimo"
-    return None
-
-
 def recomendar(opciones):
     """Elige la opción recomendada y explica por qué. Devuelve None si no hay opciones."""
     if not opciones:

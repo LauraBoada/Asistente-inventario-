@@ -32,4 +32,5 @@ def cantidad_sugerida(demanda, plazo, dias_cobertura, stock_disponible, empaque,
         return 0
 
     en_empaques = math.ceil(necesidad / empaque) * empaque
-    return max(en_empaques, pedido_minimo)
+    cantidad_minima = max(en_empaques, pedido_minimo)
+    return math.ceil(cantidad_minima / empaque) * empaque
